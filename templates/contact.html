@@ -2,9 +2,48 @@
 
 <main class="px-3">
   <h1>Contact</h1>
-  <p>
-    Contact Form here
-  </p>
+
+  <div class="d-flex justify-content-center gap-4 my-4 align-items-center">
+    <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener" class="text-decoration-none d-inline-flex align-items-center">
+      <i class="bi bi-linkedin me-1" aria-hidden="true"></i> LinkedIn
+    </a>
+    <a href="https://github.com/yourusername" target="_blank" rel="noopener" class="text-decoration-none d-inline-flex align-items-center">
+      <i class="bi bi-github me-1" aria-hidden="true"></i> GitHub
+    </a>
+    <a href="https://mastodon.social/@yourusername" target="_blank" rel="noopener" class="text-decoration-none d-inline-flex align-items-center">
+      <i class="bi bi-mastodon me-1" aria-hidden="true"></i> Mastodon
+    </a>
+  </div>
+
+  <p>or..</p>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3 text-start">
+      {{ form.name.label(class="form-label") }}
+      {{ form.name(class="form-control") }}
+    </div>
+    <div class="mb-3 text-start">
+      {{ form.email.label(class="form-label") }}
+      {{ form.email(class="form-control") }}
+    </div>
+    <div class="mb-3 text-start">
+      {{ form.message.label(class="form-label") }}
+      {{ form.message(class="form-control", rows="3") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
 </main>
 
