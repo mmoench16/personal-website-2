@@ -152,3 +152,48 @@ body {
     background-origin: border-box;
     background-clip: content-box, border-box;
 }
+
+.linkedin-blue {
+  color: #0A66C2; /* LinkedIn official blue */
+  transition: color 0.2s;
+}
+
+.linkedin-link:hover .linkedin-blue,
+.linkedin-link:focus .linkedin-blue {
+  color: #0A66C2;
+}
+
+.linkedin-link:hover .text-muted,
+.linkedin-link:focus .text-muted {
+  color: #0A66C2 !important;
+}
+
+.github-white {
+  color: #ffffff; /* GitHub white */
+  transition: color 0.2s;
+}
+
+.github-link:hover .github-white,
+.github-link:focus .github-white {
+  color: #ffffff;
+}
+
+.github-link:hover .text-muted,
+.github-link:focus .text-muted {
+  color: #ffffff !important;
+}
+
+.mastodon-purple {
+  color: #6364FF; /* Mastodon official purple */
+  transition: color 0.2s;
+}
+
+.mastodon-link:hover .mastodon-purple,
+.mastodon-link:focus .mastodon-purple {
+  color: #6364FF;
+}
+
+.mastodon-link:hover .text-muted,
+.mastodon-link:focus .text-muted {
+  color: #6364FF !important;
+}

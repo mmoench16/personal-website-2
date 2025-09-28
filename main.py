@@ -4,6 +4,7 @@ from forms import ContactForm
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import os
+import logging
 
 load_dotenv()
 
@@ -13,10 +14,16 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True') == 'True'
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+email_sender = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_USERNAME'] = email_sender
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+email_recipient = os.environ.get('EMAIL_RECIPIENT')
+
 
 mail = Mail(app)
+
+# Configure logging (at the top of your file, after imports)
+logging.basicConfig(level=logging.INFO)
 
 @app.context_processor
 def inject_year():
@@ -38,12 +45,18 @@ def contact():
         email = form.email.data
         message = form.message.data
 
-        msg = Message(f'New message from {name}', sender='your@email.com', recipients=['recipient@example.com'])
+        msg = Message(f'New message from {name}', sender=email_sender, recipients=[email_recipient])
         msg.body = f'From: {name} <{email}>\n\n{message}'
-        mail.send(msg)
 
-        flash('Your message has been sent!', 'success')
-        return redirect(url_for('index'))
+        try:
+            mail.send(msg)
+            flash('Your message has been sent!', 'success')
+            logging.info("Email sent successfully")
+        except Exception as e:
+            flash('There was an error sending your message.', 'danger')
+            logging.error(f"Email send failed: {e}")
+
+        return redirect(url_for('contact'))
 
     return render_template("contact.html", form=form)
 
