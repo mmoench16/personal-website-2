@@ -5,6 +5,7 @@ from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import os
 import logging
+from google.cloud import firestore
 
 load_dotenv()
 
@@ -18,12 +19,16 @@ email_sender = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_USERNAME'] = email_sender
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 email_recipient = os.environ.get('EMAIL_RECIPIENT')
-
+load_dotenv()
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 
 mail = Mail(app)
 
 # Configure logging (at the top of your file, after imports)
 logging.basicConfig(level=logging.INFO)
+
+# Initialize Firestore client (make sure GOOGLE_APPLICATION_CREDENTIALS is set)
+db = firestore.Client()
 
 @app.context_processor
 def inject_year():
@@ -66,7 +71,16 @@ def blog():
 
 @app.route("/projects")
 def projects():
-    return render_template("projects.html")
+    try:
+        projects_ref = db.collection('portfolio_projects')
+        docs = projects_ref.stream()
+        projects_data = [doc.to_dict() for doc in docs]
+    except Exception as e:
+        flash('Could not load projects at this time.', 'danger')
+        logging.error(f"Firestore error: {e}")
+        projects_data = []
+
+    return render_template("projects.html", projects=projects_data)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5002)

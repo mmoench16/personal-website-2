@@ -2,10 +2,30 @@
 
 <main class="px-3">
   <h1>Portfolio Projects</h1>
-  <p>
-    Portfolio projects here..
-  </p>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div>
+    {% for project in projects %}
+      <div class="mb-4">
+        <h2>{{ project.title }}</h2>
+        <p>{{ project.description }}</p>
+        {% if project.link %}
+          <a href="{{ project.link }}" target="_blank">View Project</a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  
 </main>
 
 {% include "footer.html" %}
