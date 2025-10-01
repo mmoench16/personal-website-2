@@ -2,6 +2,7 @@
 
 <main class="px-3">
   <h1>Portfolio Projects</h1>
+  <p>Some of my work.</p>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -13,19 +14,35 @@
       {% endfor %}
     {% endif %}
   {% endwith %}
-
-  <div>
-    {% for project in projects %}
-      <div class="mb-4">
-        <h2>{{ project.title }}</h2>
-        <p>{{ project.description }}</p>
-        {% if project.link %}
-          <a href="{{ project.link }}" target="_blank">View Project</a>
-        {% endif %}
-      </div>
-    {% endfor %}
-  </div>
   
+  <div>
+  {% for project in projects %}
+  <div class="card mb-3" style="max-width: 540px;">
+  <div class="row g-0">
+    <div class="col-md-8">
+      <div class="card-body text-start">
+        <h5 class="card-title">{{ project.title }}</h5>
+        <p class="card-text">
+          <small class="text-body-secondary">
+            {{ project.timestamp.strftime('%d %b %Y') if project.timestamp }}
+          </small>
+        </p>
+        <p class="card-text">
+          {% set desc = project.description %}
+          {{ desc[:150] }}&hellip; <a href="#" class="text-primary">[Read More]</a>
+        </p>
+        <button type="button" class="btn btn-primary">Open App</button>
+        <button type="button" class="btn btn-light">View on GitHub</button>
+      </div>
+    </div>
+    <div class="col-md-4 d-none d-md-block">
+      <img src="https://placehold.co/600x800" class="img-fluid rounded-end" alt="...">
+    </div>
+  </div>
+</div>
+{% endfor %}
+</div>
+
 </main>
 
 {% include "footer.html" %}
