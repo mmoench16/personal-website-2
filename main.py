@@ -65,22 +65,39 @@ def contact():
 
     return render_template("contact.html", form=form)
 
-@app.route("/blog")
-def blog():
-    return render_template("blog.html")
-
 @app.route("/projects")
 def projects():
     try:
         projects_ref = db.collection('portfolio_projects')
         docs = projects_ref.stream()
-        projects_data = [doc.to_dict() for doc in docs]
+        projects_data = []
+        for doc in docs:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            projects_data.append(data)
     except Exception as e:
         flash('Could not load projects at this time.', 'danger')
         logging.error(f"Firestore error: {e}")
         projects_data = []
 
     return render_template("projects.html", projects=projects_data)
+
+@app.route("/projects/<project_id>")
+def project_detail(project_id):
+    try:
+        project_ref = db.collection('portfolio_projects').document(project_id)
+        project = project_ref.get()
+        if project.exists:
+            project_data = project.to_dict()
+        else:
+            flash('Project not found.', 'warning')
+            return redirect(url_for('projects'))
+    except Exception as e:
+        flash('Could not load the project at this time.', 'danger')
+        logging.error(f"Firestore error: {e}")
+        return redirect(url_for('projects'))
+
+    return render_template("project_detail.html", project=project_data)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5002)

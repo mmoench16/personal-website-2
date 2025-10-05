@@ -15,7 +15,7 @@
     {% endif %}
   {% endwith %}
   
-  <div>
+  <div class="d-flex flex-column align-items-center">
   {% for project in projects %}
   <div class="card mb-3" style="max-width: 540px;">
   <div class="row g-0">
@@ -29,7 +29,7 @@
         </p>
         <p class="card-text">
           {% set desc = project.description %}
-          {{ desc[:150] }}&hellip; <a href="#" class="text-primary">[Read More]</a>
+          {{ desc[:150] }}&hellip; <a href="{{ url_for('project_detail', project_id=project.id) }}" class="text-primary">[Read More]</a>
         </p>
         <button type="button" class="btn btn-primary">Open App</button>
         <button type="button" class="btn btn-light">View on GitHub</button>
