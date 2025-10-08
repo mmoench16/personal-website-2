@@ -46,14 +46,13 @@ It features dynamic project data sourced from Google Firestore, a secure contact
 ---
 
 ## Architecture Diagram
+A visual architecture diagram is included below to clearly illustrate the application's core workflows and infrastructure.  
+This diagram highlights:
 
-Including a flow chart or architecture diagram is highly recommended.  
-It could illustrate:
-
-- User request flow (from browser to Flask routes)
-- Firestore data retrieval
-- Email sending process
-- Template rendering and flash messaging
+- How user requests are processed by Flask routes
+- The retrieval of dynamic project data from Firestore
+- The secure handling and delivery of contact form emails
+- The rendering of templates and user feedback via flash messaging
 
 <details>
 <summary>Sample Architecture Diagram (click to expand)</summary>
