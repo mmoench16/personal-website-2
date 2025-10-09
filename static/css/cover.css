@@ -16,9 +16,28 @@
  * Base structure
  */
 
-body {
+/* body {
   text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
   box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+} */
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  position: relative;
+  z-index: 1;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  box-shadow: inset 0 0 2rem rgba(0, 0, 0, 0.3);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .cover-container {
@@ -197,3 +216,17 @@ body {
 .mastodon-link:focus .text-muted {
   color: #6364FF !important;
 }
+
+/* footer::before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0; right: 0; bottom: 100%;
+  height: 40px;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+}
+footer {
+  position: relative;
+  box-shadow: 0 -10px 20px -10px rgba(0,0,0,0.5);
+} */

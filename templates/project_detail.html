@@ -9,12 +9,16 @@
     {% if project.image_url %}
       <img src="{{ project.image_url }}" class="img-fluid mb-3" alt="{{ project.title }} screenshot">
     {% endif %}
-    <p>{{ project.description }}</p>
     {% if project.link %}
       <a href="{{ project.link }}" class="btn btn-primary" target="_blank">View Project</a>
     {% endif %}
     {% if project.github_url %}
       <a href="{{ project.github_url }}" class="btn btn-light" target="_blank">View on GitHub</a>
+    {% endif %}
+    {% if project.long_description_html %}
+      <div class="mb-4 mx-auto text-start" style="max-width: 700px;">
+        {{ project.long_description_html | safe }}
+      </div>
     {% endif %}
   {% else %}
     <p>Project details not available.</p>

@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from google.cloud import firestore
+import markdown  # Add this import at the top
 
 load_dotenv()
 
@@ -89,6 +90,12 @@ def project_detail(project_id):
         project = project_ref.get()
         if project.exists:
             project_data = project.to_dict()
+            long_md = project_data.get('long_description_md', '')
+            # Use 'extra' and 'tables' extensions for GFM-like support
+            project_data['long_description_html'] = markdown.markdown(
+                long_md,
+                extensions=['extra', 'tables', 'fenced_code', 'codehilite', 'sane_lists']
+            )
         else:
             flash('Project not found.', 'warning')
             return redirect(url_for('projects'))
