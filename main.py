@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from google.cloud import firestore
+from google.cloud import storage
 import markdown  # Add this import at the top
 
 load_dotenv()
@@ -30,6 +31,12 @@ logging.basicConfig(level=logging.INFO)
 
 # Initialize Firestore client (make sure GOOGLE_APPLICATION_CREDENTIALS is set)
 db = firestore.Client()
+
+# Helper function to get GCS URL
+def get_gcs_url(filename):
+    """Convert filename to full GCS URL"""
+    bucket_name = "portfolio-website-images" 
+    return f"https://storage.googleapis.com/{bucket_name}/{filename}"
 
 @app.context_processor
 def inject_year():
@@ -75,6 +82,11 @@ def projects():
         for doc in docs:
             data = doc.to_dict()
             data['id'] = doc.id
+            
+            # Convert image_url to full GCS URL if it's just a filename
+            if 'image_url' in data and not data['image_url'].startswith('http'):
+                data['image_url'] = get_gcs_url(data['image_url'])
+                
             projects_data.append(data)
     except Exception as e:
         flash('Could not load projects at this time.', 'danger')
@@ -96,6 +108,10 @@ def project_detail(project_id):
                 long_md,
                 extensions=['extra', 'tables', 'fenced_code', 'codehilite', 'sane_lists']
             )
+
+            if 'image_url' in project_data and not project_data['image_url'].startswith('http'):
+                project_data['image_url'] = get_gcs_url(project_data['image_url'])
+                
         else:
             flash('Project not found.', 'warning')
             return redirect(url_for('projects'))

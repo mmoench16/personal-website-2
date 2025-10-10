@@ -7,7 +7,7 @@
       {{ project.timestamp.strftime('%d %b %Y') if project.timestamp }}
     </p>
     {% if project.image_url %}
-      <img src="{{ project.image_url }}" class="img-fluid mb-3" alt="{{ project.title }} screenshot">
+      <img src="{{ project.image_url }}" class="img-fluid mb-3 project-details-image" alt="{{ project.title }} screenshot">
     {% endif %}
     {% if project.link %}
       <a href="{{ project.link }}" class="btn btn-primary" target="_blank">View Project</a>

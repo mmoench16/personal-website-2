@@ -243,3 +243,8 @@ footer {
 .project-card {
   max-width: 540px;
 }
+
+/* Project details image */
+.project-details-image {
+  width: 50%;
+}
