@@ -17,7 +17,7 @@
   
   <div class="d-flex flex-column align-items-center">
   {% for project in projects %}
-  <div class="card mb-3" style="max-width: 540px;">
+  <div class="card mb-3 h-100 d-flex flex-column project-card">
   <div class="row g-0">
     <div class="col-md-8">
       <div class="card-body text-start">
@@ -35,8 +35,10 @@
         <button type="button" class="btn btn-light">View on GitHub</button>
       </div>
     </div>
-    <div class="col-md-4 d-none d-md-block">
-      <img src="https://placehold.co/600x800" class="img-fluid rounded-end" alt="...">
+    <div class="col-md-4 d-none d-md-block d-flex">
+      <img src="{{ url_for('static', filename='images/' + project.image_url) }}" 
+           class="img-fluid rounded-end project-card-image" 
+           alt="{{ project.title }} project screenshot">
     </div>
   </div>
 </div>
