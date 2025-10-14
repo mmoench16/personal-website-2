@@ -31,8 +31,8 @@
           {% set desc = project.description %}
           {{ desc[:150] }}&hellip; <a href="{{ url_for('project_detail', project_id=project.id) }}" class="text-primary">[Read More]</a>
         </p>
-        <button type="button" class="btn btn-primary">Open App</button>
-        <button type="button" class="btn btn-light">View on GitHub</button>
+        <a href="{{ project.app_url }}" class="btn btn-primary">Open App</a>
+        <a href="{{ project.github_link }}" class="btn btn-light">View on GitHub</a>
       </div>
     </div>
     <div class="col-md-4 d-none d-md-block d-flex">

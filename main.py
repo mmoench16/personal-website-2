@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, render_template, flash, redirect, url_for
+from flask import Flask, render_template, flash, redirect, url_for, send_from_directory
 from forms import ContactForm
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
@@ -122,5 +122,9 @@ def project_detail(project_id):
 
     return render_template("project_detail.html", project=project_data)
 
+@app.route("/robots.txt")
+def robots():
+    return send_from_directory(".", "robots.txt", mimetype="text/plain")
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(...)
