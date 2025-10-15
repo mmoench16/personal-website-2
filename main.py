@@ -42,7 +42,7 @@ email_recipient = os.environ.get('EMAIL_RECIPIENT')
 mail = Mail(app)
 
 # --- Google credentials (Railway: JSON content via env -> temp file) ---
-sa_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+sa_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 if sa_json:
     key_path = "/tmp/service_account.json"
     with open(key_path, "w") as f:
