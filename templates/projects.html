@@ -4,6 +4,7 @@
   <h1>Portfolio Projects</h1>
   <p>Some of my work.</p>
 
+  <!-- Flash messages appear here (user feedback on data load errors) -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
@@ -15,6 +16,7 @@
     {% endif %}
   {% endwith %}
   
+  <!-- Projects list (cards) pulled from Firestore via /projects route) -->
   <div class="d-flex flex-column align-items-center">
   {% for project in projects %}
   <div class="card mb-3 h-100 d-flex flex-column project-card">
