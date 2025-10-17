@@ -201,6 +201,38 @@ def healthz():
     """Lightweight health check for uptime monitoring."""
     return "ok", 200
 
+@app.route("/debug/smtp")
+def debug_smtp():
+    import socket, smtplib, time, urllib.request
+    host = "smtp.gmail.com"
+    ports = [587, 465]
+    results = []
+
+    for p in ports:
+        try:
+            t0 = time.time()
+            if p == 465:
+                with smtplib.SMTP_SSL(host, p, timeout=5) as s:
+                    s.noop()
+            else:
+                with smtplib.SMTP(host, p, timeout=5) as s:
+                    s.ehlo()
+                    s.starttls()
+                    s.noop()
+            dt = round((time.time() - t0) * 1000)
+            results.append(f"{host}:{p} OK in {dt}ms")
+        except Exception as e:
+            results.append(f"{host}:{p} FAIL: {type(e).__name__}: {e}")
+
+    # Prove general egress works (HTTPS on 443)
+    try:
+        with urllib.request.urlopen("https://www.google.com", timeout=5) as r:
+            results.append(f"https://www.google.com {r.status}")
+    except Exception as e:
+        results.append(f"https://www.google.com FAIL: {e}")
+
+    return "<br>".join(results), 200
+
 # --- Local dev entrypoint (Gunicorn used in production) ---
 debug = os.environ.get("FLASK_DEBUG", "0") == "1"
 
