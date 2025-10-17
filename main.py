@@ -41,13 +41,22 @@ email_recipient = os.environ.get('EMAIL_RECIPIENT')
 # Initialize Mail once (avoid recreating per request)
 mail = Mail(app)
 
-# --- Google credentials (Railway: JSON content via env -> temp file) ---
-sa_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-if sa_json:
-    key_path = "/tmp/service_account.json"
-    with open(key_path, "w") as f:
-        f.write(sa_json)
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path  # path Firestore SDK expects
+# --- Google credentials (supports JSON string or file path) ---
+sa_value = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+if sa_value:
+    try:
+        if sa_value.strip().startswith("{"):
+            key_path = "/tmp/service_account.json"
+            with open(key_path, "w") as f:
+                f.write(sa_value)
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path
+        elif os.path.isfile(sa_value):
+            # It’s already a path; use as-is
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = sa_value
+        else:
+            logging.warning("GOOGLE_APPLICATION_CREDENTIALS is set but not valid JSON or a file path.")
+    except Exception as e:
+        logging.error(f"Failed to process GOOGLE_APPLICATION_CREDENTIALS: {e}")
 
 logging.basicConfig(level=logging.INFO)
 
