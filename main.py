@@ -9,7 +9,6 @@
 from datetime import datetime
 from flask import Flask, render_template, flash, redirect, url_for, send_from_directory
 from forms import ContactForm
-from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import os
 import logging
@@ -18,6 +17,7 @@ import markdown
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_wtf.csrf import CSRFProtect
 import bleach
+import requests
 
 load_dotenv()
 
@@ -30,17 +30,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
 # --- Configuration (env-driven) ---
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER')
-app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True') == 'True'
-email_sender = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_USERNAME'] = email_sender
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = email_sender  # added
 email_recipient = os.environ.get('EMAIL_RECIPIENT')
-
-# Initialize Mail once (avoid recreating per request)
-mail = Mail(app)
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+RESEND_FROM = os.environ.get("RESEND_FROM", "onboarding@resend.dev")  # verify a sender in Resend for production
 
 # --- Google credentials (supports JSON string or file path) ---
 sa_value = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
@@ -86,24 +78,48 @@ def about():
     """About page."""
     return render_template("about.html")
 
+def send_contact_email(name: str, reply_email: str, body: str):
+    """Send contact email via Resend HTTP API."""
+    if not RESEND_API_KEY:
+        raise RuntimeError("RESEND_API_KEY is not set")
+
+    subject = f"New message from {name}"
+    text = f"From: {name} <{reply_email}>\n\n{body}"
+
+    resp = requests.post(
+        "https://api.resend.com/emails",
+        headers={
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "from": RESEND_FROM,
+            "to": [email_recipient],
+            "subject": subject,
+            "text": text,
+            "reply_to": reply_email,
+        },
+        timeout=10,
+    )
+    if resp.status_code >= 400:
+        logging.error(f"Resend API error: {resp.status_code} {resp.text}")
+        resp.raise_for_status()
+
 @app.route("/contact", methods=['GET', 'POST'])
 def contact():
-    """Contact form: sends email via Flask-Mail."""
+    """Contact form: sends email via Resend."""
     form = ContactForm()
     if form.validate_on_submit():
         name = form.name.data
         email = form.email.data
         message = form.message.data
-        msg = Message(f'New message from {name}', sender=email_sender, recipients=[email_recipient])
-        msg.body = f'From: {name} <{email}>\n\n{message}'
         try:
-            # use global mail instance
-            mail.send(msg)
+            send_contact_email(name, email, message)
             flash('Your message has been sent!', 'success')
-            logging.info("Email sent successfully")
+            logging.info("Contact email sent via Resend")
         except Exception as e:
+            logging.exception("Email send failed")
             flash('There was an error sending your message.', 'danger')
-            logging.error(f"Email send failed: {e}")
         return redirect(url_for('contact'))
     return render_template("contact.html", form=form)
 
@@ -200,38 +216,6 @@ def server_error(e):
 def healthz():
     """Lightweight health check for uptime monitoring."""
     return "ok", 200
-
-@app.route("/debug/smtp")
-def debug_smtp():
-    import socket, smtplib, time, urllib.request
-    host = "smtp.gmail.com"
-    ports = [587, 465]
-    results = []
-
-    for p in ports:
-        try:
-            t0 = time.time()
-            if p == 465:
-                with smtplib.SMTP_SSL(host, p, timeout=5) as s:
-                    s.noop()
-            else:
-                with smtplib.SMTP(host, p, timeout=5) as s:
-                    s.ehlo()
-                    s.starttls()
-                    s.noop()
-            dt = round((time.time() - t0) * 1000)
-            results.append(f"{host}:{p} OK in {dt}ms")
-        except Exception as e:
-            results.append(f"{host}:{p} FAIL: {type(e).__name__}: {e}")
-
-    # Prove general egress works (HTTPS on 443)
-    try:
-        with urllib.request.urlopen("https://www.google.com", timeout=5) as r:
-            results.append(f"https://www.google.com {r.status}")
-    except Exception as e:
-        results.append(f"https://www.google.com FAIL: {e}")
-
-    return "<br>".join(results), 200
 
 # --- Local dev entrypoint (Gunicorn used in production) ---
 debug = os.environ.get("FLASK_DEBUG", "0") == "1"
