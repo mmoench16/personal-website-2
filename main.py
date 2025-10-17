@@ -36,6 +36,7 @@ app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True') == 'True'
 email_sender = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_USERNAME'] = email_sender
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = email_sender  # added
 email_recipient = os.environ.get('EMAIL_RECIPIENT')
 
 # Initialize Mail once (avoid recreating per request)
