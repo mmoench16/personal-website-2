@@ -1,4 +1,4 @@
-# Personal Portfolio Website (Flask + Firestore)
+# Portfolio Website (Flask + Firestore)
 
 This project is a modern, responsive personal portfolio website built with Flask and Bootstrap, designed to showcase my work, skills, and to enable people to get in touch with me.  
 It features dynamic project data sourced from Google Firestore, a secure contact form with bot protection, and a clean, professional UI.
