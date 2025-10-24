@@ -1,7 +1,7 @@
 # Personal Portfolio Website (Flask + Firestore)
 
 This project is a modern, responsive personal portfolio website built with Flask and Bootstrap, designed to showcase my work, skills, and to enable people to get in touch with me.  
-It features dynamic project data sourced from Google Firestore, a secure contact form with email integration, and a clean, professional UI.
+It features dynamic project data sourced from Google Firestore, a secure contact form with bot protection, and a clean, professional UI.
 
 ---
 
@@ -14,13 +14,18 @@ It features dynamic project data sourced from Google Firestore, a secure contact
 - **Project Detail Pages:**  
   Each project has its own detail page, accessible via a unique URL.
 - **Contact Form:**  
-  Secure contact form with email validation and Flask-Mail integration.
+  Bot-protected with Cloudflare Turnstile and delivered via the Resend HTTP API.
 - **Accessibility:**  
   Uses ARIA attributes and semantic HTML for improved accessibility.
 - **Security:**  
-  Sensitive credentials managed via environment variables and `.env` files.
+  Security headers (CSP, X-Frame-Options, X-Content-Type-Options), CSRF protection, and sanitized Markdown.
 - **Professional UI:**  
   Custom theming, social media integration, and interactive elements.
+- **Deployment:**  
+  Hosted on Railway with a custom domain.
+
+**Screenshots**
+- ![Overview](static/images/pp_collage.png)
 
 ---
 
@@ -34,44 +39,35 @@ It features dynamic project data sourced from Google Firestore, a secure contact
   Responsive layouts, utility classes, and component customization.
 - **Jinja2 Templating:**  
   Dynamic content rendering and conditional logic.
-- **Email Integration:**  
-  Flask-Mail setup, secure SMTP configuration, and user feedback via flash messages.
+- **Email Delivery:**  
+  Resend HTTP API integration with user feedback via flash messages.
+- **Bot Protection & Security:**  
+  Cloudflare Turnstile, CSRF, CSP, and content sanitization.
 - **Environment Management:**  
-  Use of `python-dotenv` for secure configuration.
+  Use of `python-dotenv` and environment-driven configuration.
 - **Logging & Error Handling:**  
   Professional logging and user-facing error messages.
-- **Version Control:**  
-  Proper use of `.gitignore` to protect sensitive files.
 
 ---
 
 ## Architecture Diagram
-A visual architecture diagram is included below to clearly illustrate the application's core workflows and infrastructure.  
-This diagram highlights:
+A visual architecture diagram is included below to illustrate the core workflows and infrastructure.
 
-- How user requests are processed by Flask routes
-- The retrieval of dynamic project data from Firestore
-- The secure handling and delivery of contact form emails
-- The rendering of templates and user feedback via flash messaging
-
-<details>
-<summary>Sample Architecture Diagram (click to expand)</summary>
-
+**Architecture Diagram**
 ```mermaid
 flowchart TD
     A[User Browser] -->|HTTP Request| B[Flask App]
+    A -->|Turnstile Widget| T[Cloudflare Turnstile]
+    B -->|Verify Token| T
     B -->|Query| C[Firestore Database]
+    B -->|Send Email (HTTPS)| R[Resend API]
     B -->|Render| D[Jinja2 Templates]
-    B -->|Send Email| E[SMTP Server]
     D -->|Response| A
 ```
-</details>
 
 ---
 
 ## Summary
 
-This portfolio demonstrates full-stack web development skills, cloud database integration, secure form handling, and modern UI/UX practices.  
-It’s a production-ready showcase of both technical and design capabilities.
-
----
+This portfolio demonstrates full‑stack web development skills, cloud database integration, secure form handling with bot protection, and modern UI/UX practices.  
+It’s a production‑ready showcase of both technical and design capabilities.
