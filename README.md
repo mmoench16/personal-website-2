@@ -3,6 +3,8 @@
 This project is a modern, responsive personal portfolio website built with Flask and Bootstrap, designed to showcase my work, skills, and to enable people to get in touch with me.  
 It features dynamic project data sourced from Google Firestore, a secure contact form with bot protection, and a clean, professional UI.
 
+Link: https://www.martinm.work/
+
 ---
 
 ## Features
@@ -23,9 +25,6 @@ It features dynamic project data sourced from Google Firestore, a secure contact
   Custom theming, social media integration, and interactive elements.
 - **Deployment:**  
   Hosted on Railway with a custom domain.
-
-**Screenshots**
-- ![Overview](static/images/pp_collage.png)
 
 ---
 
@@ -56,13 +55,13 @@ A visual architecture diagram is included below to illustrate the core workflows
 **Architecture Diagram**
 ```mermaid
 flowchart TD
-    A[User Browser] -->|HTTP Request| B[Flask App]
-    A -->|Turnstile Widget| T[Cloudflare Turnstile]
-    B -->|Verify Token| T
-    B -->|Query| C[Firestore Database]
-    B -->|Send Email (HTTPS)| R[Resend API]
-    B -->|Render| D[Jinja2 Templates]
-    D -->|Response| A
+    A[User Browser] -->|"HTTP(S) request"| B[Flask App]
+    A -->|"Turnstile widget"| T[Cloudflare Turnstile]
+    B -->|"Verify token"| T
+    B -->|"Query"| C[Firestore Database]
+    B -->|"Email via HTTPS"| R[Resend API]
+    B -->|"Render"| D[Jinja2 Templates]
+    D -->|"Response"| A
 ```
 
 ---
@@ -71,3 +70,6 @@ flowchart TD
 
 This portfolio demonstrates full‑stack web development skills, cloud database integration, secure form handling with bot protection, and modern UI/UX practices.  
 It’s a production‑ready showcase of both technical and design capabilities.
+
+## Screenshots
+![Overview](static/images/pp_collage.png)
