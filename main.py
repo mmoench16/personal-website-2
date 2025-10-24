@@ -7,7 +7,7 @@
 """
 
 from datetime import datetime
-from flask import Flask, render_template, flash, redirect, url_for, send_from_directory
+from flask import Flask, render_template, flash, redirect, url_for, send_from_directory, request
 from forms import ContactForm
 from dotenv import load_dotenv
 import os
@@ -32,7 +32,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 email_recipient = os.environ.get('EMAIL_RECIPIENT')
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
-RESEND_FROM = os.environ.get("RESEND_FROM", "onboarding@resend.dev")  # verify a sender in Resend for production
+RESEND_FROM = os.environ.get("RESEND_FROM", "onboarding@resend.dev")  #TODO verify a sender in Resend for production 
+TURNSTILE_SITE_KEY = os.environ.get("TURNSTILE_SITE_KEY")            
+TURNSTILE_SECRET_KEY = os.environ.get("TURNSTILE_SECRET_KEY")        
 
 # --- Google credentials (supports JSON string or file path) ---
 sa_value = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
@@ -64,7 +66,10 @@ def get_gcs_url(filename: str) -> str:
 @app.context_processor
 def inject_year():
     """Inject current year into all templates."""
-    return {'current_year': datetime.utcnow().year}
+    return {
+        'current_year': datetime.utcnow().year,
+        'TURNSTILE_SITE_KEY': TURNSTILE_SITE_KEY,  
+    }
 
 # --- Routes ---
 
@@ -105,11 +110,36 @@ def send_contact_email(name: str, reply_email: str, body: str):
         logging.error(f"Resend API error: {resp.status_code} {resp.text}")
         resp.raise_for_status()
 
+def verify_turnstile(token: str, remote_ip: str | None = None) -> bool:
+    """Server-side verify Cloudflare Turnstile token."""
+    if not (TURNSTILE_SECRET_KEY and token):
+        logging.warning("Turnstile missing secret or token")
+        return False
+    try:
+        payload = {"secret": TURNSTILE_SECRET_KEY, "response": token}
+        if remote_ip:
+            payload["remoteip"] = remote_ip
+        r = requests.post("https://challenges.cloudflare.com/turnstile/v0/siteverify", data=payload, timeout=5)
+        data = r.json()
+        ok = bool(data.get("success"))
+        if not ok:
+            logging.warning(f"Turnstile verification failed: {data}")
+        return ok
+    except Exception as e:
+        logging.error(f"Turnstile verify error: {e}")
+        return False
+
 @app.route("/contact", methods=['GET', 'POST'])
 def contact():
     """Contact form: sends email via Resend."""
     form = ContactForm()
     if form.validate_on_submit():
+        # verify Turnstile
+        token = request.form.get("cf-turnstile-response")
+        if not verify_turnstile(token, request.remote_addr):
+            flash('Verification failed. Please try again.', 'warning')
+            return redirect(url_for('contact'))
+
         name = form.name.data
         email = form.email.data
         message = form.message.data
@@ -189,14 +219,13 @@ def secure_headers(resp):
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     resp.headers.setdefault("X-Frame-Options", "DENY")
     resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
-
-    # Allow self + jsDelivr CDNs; images from GCS; inline styles (for small inline style attrs)
     resp.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "img-src 'self' https://storage.googleapis.com data:; "
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-        "script-src 'self' https://cdn.jsdelivr.net; "
-        "font-src 'self' https://cdn.jsdelivr.net data:;"
+        "script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com; "  
+        "font-src 'self' https://cdn.jsdelivr.net data:; "
+        "frame-src https://challenges.cloudflare.com;"  
     )
     return resp
 

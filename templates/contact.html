@@ -43,6 +43,14 @@
       {{ form.message.label(class="form-label") }}
       {{ form.message(class="form-control", rows="3") }}
     </div>
+
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <div class="cf-turnstile mb-3"
+      data-sitekey="{{ TURNSTILE_SITE_KEY }}"
+      data-theme="auto"
+      data-size="normal">
+    </div>
+
     {{ form.submit(class="btn btn-primary") }}
   </form>
 
